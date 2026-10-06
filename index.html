@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b09">
+<title>Universal CA Lecture Planner</title>
+<style>
+:root{
+  --accent:#1ed760;--accentText:#07130a;--bg:#080b09;--panel:#111512;--card:#171c18;
+  --line:#29312a;--text:#f4f7f4;--muted:#98a19a;--soft:#0d100e;--good:#54de80;
+  --warn:#f4c75b;--bad:#ff7788;--blue:#74aefe
+}
+html[data-theme="light"]{
+  --bg:#f4f7f5;--panel:#ffffff;--card:#f8fbf9;--line:#d8e2db;--text:#172019;
+  --muted:#69776e;--soft:#edf3ef;--good:#16883f;--warn:#9d730d;--bad:#c84e60;--blue:#356fb9
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+  radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--accent) 10%,transparent),transparent 26%),
+  var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid color-mix(in srgb,var(--accent) 35%,transparent);outline-offset:2px
+}
+input,select,textarea{font-size:16px}
+.app{max-width:1360px;margin:auto;padding:12px}
+.shell{display:grid;grid-template-columns:235px minmax(0,1fr);gap:12px}
+.sidebar{
+  position:sticky;top:12px;align-self:start;background:var(--panel);border:1px solid var(--line);
+  border-radius:22px;padding:14px;min-height:620px
+}
+.brand{font-weight:950;font-size:18px;display:flex;gap:9px;align-items:center}
+.brandDot{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accentText);font-size:11px}
+.brand small{display:block;color:var(--muted);font-size:9px;font-weight:650;line-height:1.45;margin-top:3px}
+.profileBox{margin-top:15px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.profileBox label{display:block;color:var(--muted);font-size:8px;font-weight:900;margin-bottom:5px}
+.profileBox select{width:100%;min-height:40px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:6px}
+.profileActions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+.nav{display:grid;gap:6px;margin-top:14px}
+.nav button{border:0;background:transparent;color:var(--muted);text-align:left;padding:11px;border-radius:10px;font-weight:850}
+.nav button.active{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--text)}
+.nav button:disabled{display:none}
+.page{display:none}.page.active{display:block}
+.top{
+  display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--panel);
+  border:1px solid var(--line);border-radius:17px;padding:12px 14px;margin-bottom:10px
+}
+.top h1{margin:0;font-size:20px}.top p{margin:3px 0 0;color:var(--muted);font-size:10px}
+.hero{
+  border:1px solid var(--line);border-radius:21px;padding:22px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 12%,var(--panel)),var(--panel) 62%,color-mix(in srgb,var(--blue) 7%,var(--panel)))
+}
+.eyebrow,.kicker{font-size:9px;color:var(--accent);font-weight:950;letter-spacing:.1em;text-transform:uppercase}
+.hero h2{font-size:30px;line-height:1.06;margin:7px 0}.hero p{max-width:780px;color:var(--muted);font-size:12px;line-height:1.55}
+.actions,.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{min-height:42px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--card);color:var(--text);font-weight:900}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accentText)}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 35%,var(--line))}
+.btn.small{min-height:34px;padding:6px 9px;font-size:10px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat small{display:block;color:var(--muted);font-size:8px}.stat strong{display:block;font-size:21px;margin-top:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:14px;margin-top:10px}
+.panelHead{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:10px}
+.panelHead h2,.panelHead h3{margin:0;font-size:16px}.panelHead p{margin:4px 0 0;color:var(--muted);font-size:10px;line-height:1.4}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.field label{display:block;font-size:8px;font-weight:900;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;min-height:42px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);padding:8px}
+.field textarea{min-height:80px;resize:vertical}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.full{grid-column:1/-1}
+.notice{padding:10px;border-radius:11px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));background:color-mix(in srgb,var(--accent) 7%,var(--panel));font-size:10px;line-height:1.5}
+.notice.warn{border-color:color-mix(in srgb,var(--warn) 35%,var(--line));background:color-mix(in srgb,var(--warn) 7%,var(--panel));color:var(--warn)}
+.notice.bad{border-color:color-mix(in srgb,var(--bad) 35%,var(--line));background:color-mix(in srgb,var(--bad) 7%,var(--panel));color:var(--bad)}
+.wizardSteps{display:flex;gap:6px;overflow:auto;margin-bottom:10px}
+.wizardStep{min-width:130px;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:9px;border-radius:10px;font-size:9px;font-weight:900}
+.wizardStep.active{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.wizardPane{display:none}.wizardPane.active{display:block}
+.subjectEditor{display:grid;gap:9px}
+.subjectEditCard{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px}
+.subjectEditTop{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}
+.subjectEditTop strong{font-size:13px}.subjectEditTop span{font-size:9px;color:var(--muted)}
+.subjectGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.depSelect{min-height:80px!important}
+.strategyCards{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.strategyCard{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:12px}
+.strategyCard input{margin-right:6px}.strategyCard strong{font-size:12px}.strategyCard p{color:var(--muted);font-size:9px;line-height:1.45}
+.weekGrid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.dayBox{border:1px solid var(--line);background:var(--card);border-radius:11px;padding:8px}
+.dayBox strong{display:block;font-size:9px;margin-bottom:5px}.dayBox select{width:100%;min-height:38px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--text)}
+.reviewTable{display:grid;gap:6px}.reviewRow{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:7px 0;font-size:10px}.reviewRow span{color:var(--muted)}
+.subjectCards{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.subjectCard{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:13px}
+.subjectCardTop{display:flex;justify-content:space-between;gap:8px}.subjectCardTop h3{margin:3px 0 0;font-size:17px}
+.badge{font-size:8px;font-weight:950;padding:5px 7px;border-radius:999px;background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent)}
+.progress{height:7px;background:var(--soft);border-radius:99px;overflow:hidden;margin:10px 0 6px}.progress span{display:block;height:100%;background:var(--accent)}
+.subjectMeta{display:flex;justify-content:space-between;color:var(--muted);font-size:9px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:780px;background:var(--card)}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);font-size:9px;text-align:center}
+th{background:var(--soft);color:var(--muted);position:sticky;top:0}
+th:first-child,td:first-child{text-align:left}.mix{font-weight:850}
+.tag{display:inline-block;padding:4px 7px;border-radius:999px;font-weight:950;font-size:8px}
+.tag.hard{background:color-mix(in srgb,var(--bad) 12%,var(--card));color:var(--bad)}
+.tag.normal{background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent)}
+.tag.easy{background:color-mix(in srgb,var(--blue) 12%,var(--card));color:var(--blue)}
+.tag.off{background:var(--soft);color:var(--muted)}
+.todayLine{display:grid;grid-template-columns:1fr 100px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.todayLine:last-child{border-bottom:0}.todayLine small{display:block;color:var(--muted);font-size:9px;margin-top:2px}
+.todayLine input{width:100%;min-height:42px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--text);text-align:center}
+.feasGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.choice{border:1px solid var(--line);background:var(--card);border-radius:13px;padding:12px}
+.choice input{margin-right:6px}.choice strong{font-size:11px}.choice p{font-size:9px;color:var(--muted);line-height:1.45}
+.appearanceGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.colorRow{display:flex;gap:8px;flex-wrap:wrap}.colorDot{width:40px;height:40px;border-radius:50%;border:3px solid var(--panel);outline:1px solid var(--line)}
+.empty{padding:24px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted);font-size:11px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,15px);opacity:0;pointer-events:none;background:var(--text);color:var(--bg);padding:11px 14px;border-radius:11px;font-size:11px;font-weight:900;transition:.2s;z-index:1000}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:1080px){.subjectGrid{grid-template-columns:repeat(3,1fr)}.feasGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:static;min-height:0}.nav{display:flex;overflow:auto}.nav button{min-width:110px;white-space:nowrap}.profileBox{margin-top:10px}.stats{grid-template-columns:repeat(2,1fr)}.grid2{grid-template-columns:1fr}.weekGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.app{padding:8px}.formgrid,.grid3,.strategyCards,.subjectCards,.appearanceGrid,.feasGrid{grid-template-columns:1fr}.subjectGrid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.hero h2{font-size:24px}.top{display:block}.actions .btn{flex:1 1 145px}}
+
+/* ---- Premium clean UI override ---- */
+.shell{grid-template-columns:220px 1fr;gap:14px}
+.sidebar{border-radius:22px;padding:15px;background:linear-gradient(180deg,var(--panel),color-mix(in srgb,var(--panel) 92%,var(--bg)));min-height:calc(100vh - 24px)}
+.brand{padding:5px 5px 13px;border-bottom:1px solid var(--line)}
+.nav{gap:6px}
+.nav button{border-radius:11px;padding:11px 12px;font-size:12px}
+.nav button.active{background:color-mix(in srgb,var(--accent) 14%,var(--panel));color:var(--text)}
+.profileBox{margin-top:2px;padding:11px;border-radius:14px;background:var(--card);border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line))}
+.profileIdentity{display:flex;gap:9px;align-items:center;margin-bottom:9px}
+.profileAvatar{width:34px;height:34px;border-radius:11px;background:color-mix(in srgb,var(--accent) 16%,var(--panel));display:grid;place-items:center;color:var(--accent);font-weight:950}
+.profileIdentityText{min-width:0}
+.profileIdentityText label{margin:0;color:var(--muted);font-size:8px}
+.profileIdentityText strong{display:block;margin-top:2px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profileBox select{min-height:41px}
+#profileStatus{font-size:8px;color:var(--muted);margin:6px 2px 0}
+.profileActions{gap:6px;margin-top:8px}
+.top{border-radius:18px;padding:13px 15px;margin-bottom:12px}
+.hero{border-radius:22px;padding:23px}
+.hero h2{font-size:30px}
+.panel{border-radius:18px;padding:15px;margin-top:12px}
+.stats{gap:9px}
+.stat{border-radius:15px;padding:13px}
+.subjectGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.subjectEditCard{padding:14px;border-radius:15px}
+.strategyCards{gap:9px}
+.strategyCard{padding:13px}
+.wizardSteps{gap:7px;margin:0 0 12px}
+.wizardStep{min-width:115px;padding:9px 10px;border-radius:10px}
+.formgrid{gap:9px}
+.field input,.field select,.field textarea{border-radius:9px}
+.todayLine{padding:11px 0}
+.tablewrap{border-radius:13px}
+th,td{padding:10px 9px}
+@media(max-width:980px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{min-height:0}
+  .nav{display:flex;overflow:auto;padding-bottom:2px}
+  .nav button{min-width:115px}
+  .profileBox{max-width:520px}
+}
+@media(max-width:720px){
+  .subjectGrid{grid-template-columns:1fr}
+  .wizardSteps{overflow:auto}
+  .wizardStep{min-width:105px}
+  .hero{padding:18px}
+  .hero h2{font-size:25px}
+  .panel{padding:12px}
+}
+
+
+/* Unified premium button system */
+:root{--btn-radius:11px;--btn-h:42px;--btn-pad-x:13px;--btn-font:11px}
+button,.btn,.nav button,.wizardStep,.modebtn,.themeBtn{-webkit-tap-highlight-color:transparent}
+.btn,.nav button,.wizardStep,.modebtn,.themeBtn,.profileActions button,.actions button,.toolbar button{
+  min-height:var(--btn-h);border-radius:var(--btn-radius);font-size:var(--btn-font);font-weight:850;
+  letter-spacing:.01em;line-height:1;transition:background-color .16s ease,border-color .16s ease,color .16s ease,transform .12s ease,box-shadow .16s ease
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 var(--btn-pad-x);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--panel2) 96%,white 4%),var(--panel2));
+  border:1px solid var(--line);color:var(--text);box-shadow:0 1px 0 rgba(255,255,255,.025) inset
+}
+.btn.primary,.btnPrimary{background:var(--accent);border-color:var(--accent);color:var(--accentText);box-shadow:none}
+.btn.danger,.btnDanger{color:var(--bad);background:color-mix(in srgb,var(--bad) 5%,var(--panel2));border-color:color-mix(in srgb,var(--bad) 28%,var(--line))}
+.btn.small,.btnTiny{min-height:34px;border-radius:9px;padding:0 10px;font-size:9px}
+@media (hover:hover) and (pointer:fine){
+  .btn:hover,.modebtn:hover,.wizardStep:hover{background:color-mix(in srgb,var(--panel2) 88%,var(--text) 12%);border-color:color-mix(in srgb,var(--line) 68%,var(--text) 32%)}
+  .btn.primary:hover,.btnPrimary:hover{background:color-mix(in srgb,var(--accent) 90%,white 10%);border-color:color-mix(in srgb,var(--accent) 90%,white 10%)}
+  .btn.danger:hover,.btnDanger:hover{background:color-mix(in srgb,var(--bad) 10%,var(--panel2));border-color:color-mix(in srgb,var(--bad) 42%,var(--line))}
+  .nav button:hover{background:color-mix(in srgb,var(--panel2) 78%,var(--text) 4%);color:var(--text)}
+}
+.btn:active,.modebtn:active,.wizardStep:active,.nav button:active{transform:scale(.985)}
+.btn:disabled,.modebtn:disabled,.wizardStep:disabled{opacity:.45;filter:saturate(.7);cursor:not-allowed;transform:none}
+.nav button{
+  min-height:44px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid transparent;
+  background:transparent;color:var(--muted);font-size:11px
+}
+.nav button.active{
+  background:color-mix(in srgb,var(--accent) 11%,var(--panel));
+  border-color:color-mix(in srgb,var(--accent) 20%,var(--line));color:var(--text);box-shadow:none
+}
+.modebar{padding:4px;gap:4px;border:1px solid var(--line);border-radius:13px;background:var(--soft)}
+.modebtn{min-height:40px;border:0;border-radius:9px;background:transparent;color:var(--muted);padding:0 11px}
+.modebtn.active{background:var(--panel2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.16)}
+.wizardSteps{padding:4px;border:1px solid var(--line);border-radius:14px;background:var(--soft)}
+.wizardStep{min-height:38px;border:0;border-radius:9px;background:transparent;color:var(--muted);padding:0 11px}
+.wizardStep.active{background:var(--panel2);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.actions,.toolbar,.profileActions{align-items:center}
+.actions .btn,.toolbar .btn{white-space:nowrap}
+.profileActions .btn{width:100%}
+.colorDot,.accent{width:38px;height:38px;min-height:38px;padding:0;border-radius:50%;border:3px solid var(--panel);outline:1px solid var(--line);transition:transform .12s ease,outline-color .16s ease}
+@media (hover:hover) and (pointer:fine){.colorDot:hover,.accent:hover{transform:translateY(-1px) scale(1.04);outline-color:var(--text)}}
+@media(max-width:680px){
+  .actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .actions .btn{width:100%;min-width:0}
+  .actions .btn:only-child{grid-column:1/-1}
+  .toolbar{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .toolbar input,.toolbar select{min-width:0;width:100%}
+  .toolbar .btn{width:100%}
+  .profileActions{grid-template-columns:1fr 1fr}
+  .nav button{min-height:42px}
+}
+
+
+/* ---- Full calendar ---- */
+.calendarToolbar{
+  display:grid;
+  grid-template-columns:42px minmax(150px,1fr) 42px auto;
+  gap:7px;
+  align-items:center;
+  margin-bottom:10px
+}
+.calendarNavBtn{padding:0!important;font-size:16px!important}
+.calendarMonthTitle{
+  min-height:40px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--soft);
+  font-size:13px;
+  font-weight:950;
+  letter-spacing:.01em
+}
+.calendarLegend{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+  color:var(--muted);
+  font-size:9px;
+  margin:2px 0 10px
+}
+.calendarLegend span{display:inline-flex;align-items:center;gap:5px}
+.legendDot{width:7px;height:7px;border-radius:50%;display:inline-block}
+.hardDot{background:var(--bad)}.normalDot{background:var(--accent)}.easyDot{background:var(--blue)}.savedDot{background:var(--good)}
+.calendarWeekdays,.calendarGrid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:6px
+}
+.calendarWeekdays{
+  margin-bottom:6px;
+  color:var(--muted);
+  font-size:8px;
+  font-weight:900;
+  text-align:center
+}
+.calendarDay{
+  position:relative;
+  min-height:105px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--card);
+  color:var(--text);
+  padding:8px;
+  text-align:left;
+  overflow:hidden;
+  transition:border-color .16s ease,background-color .16s ease,transform .12s ease
+}
+.calendarDay.blank{
+  border-color:transparent;
+  background:transparent;
+  pointer-events:none
+}
+.calendarDay.outsidePlan{opacity:.48}
+.calendarDay.saved{
+  border-color:color-mix(in srgb,var(--good) 42%,var(--line));
+  background:color-mix(in srgb,var(--good) 4%,var(--card))
+}
+.calendarDay.selected{
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px var(--accent) inset;
+  background:color-mix(in srgb,var(--accent) 5%,var(--card))
+}
+.calendarDayNumber{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:5px;
+  font-size:11px;
+  font-weight:950;
+  margin-bottom:7px
+}
+.calendarLevel{
+  width:7px;height:7px;border-radius:50%;flex:0 0 auto
+}
+.calendarLevel.Hard{background:var(--bad)}
+.calendarLevel.Normal{background:var(--accent)}
+.calendarLevel.Easy{background:var(--blue)}
+.calendarLevel.Off{background:var(--muted)}
+.calendarChips{display:grid;gap:4px}
+.calendarChip{
+  display:block;
+  max-width:100%;
+  padding:3px 5px;
+  border-radius:6px;
+  background:var(--panel2);
+  color:var(--text);
+  font-size:7.5px;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+.calendarSaved{
+  position:absolute;
+  right:7px;
+  bottom:6px;
+  font-size:7px;
+  font-weight:950;
+  color:var(--good)
+}
+.calendarTotal{
+  position:absolute;
+  left:7px;
+  bottom:6px;
+  font-size:7px;
+  color:var(--muted)
+}
+@media(hover:hover) and (pointer:fine){
+  .calendarDay:not(.blank):hover{
+    transform:translateY(-1px);
+    border-color:color-mix(in srgb,var(--accent) 36%,var(--line))
+  }
+}
+@media(max-width:780px){
+  .calendarToolbar{grid-template-columns:40px 1fr 40px}
+  #calendarToday{grid-column:1/-1;width:100%}
+  .calendarGrid{gap:4px}
+  .calendarWeekdays{gap:4px}
+  .calendarDay{min-height:88px;border-radius:9px;padding:6px}
+  .calendarChip{font-size:7px;padding:3px 4px}
+  .calendarDayNumber{font-size:10px}
+}
+@media(max-width:520px){
+  .calendarDay{min-height:76px;padding:5px}
+  .calendarChips{gap:2px}
+  .calendarChip{font-size:6.5px}
+  .calendarTotal{display:none}
+  .calendarSaved{font-size:6.5px;right:5px;bottom:4px}
+}
+
+</style>
+</head>
+<body>
+<div class="app"><div class="shell">
+<aside class="sidebar">
+  <div class="brand"><div class="brandDot">CA</div><div>Lecture Planner<small>Universal • multi-student • local profiles</small></div></div>
+  <div class="profileBox">
+    <div class="profileIdentity">
+      <div class="profileAvatar" id="profileAvatar">R</div>
+      <div class="profileIdentityText"><label>ACTIVE STUDENT</label><strong id="profileNameText">Rishabh</strong></div>
+    </div>
+    <select id="profileSelect"></select>
+    <div id="profileStatus">Profile loaded</div>
+    <div class="profileActions">
+      <button class="btn small primary" id="newProfile">+ New Profile</button>
+      <button class="btn small" id="editProfile">Edit Plan</button>
+    </div>
+  </div>
+  <nav class="nav">
+    <button type="button" data-page="dashboard" class="active" data-needs-profile>Home</button>
+    <button type="button" data-page="today" data-needs-profile>Today</button>
+    <button type="button" data-page="planner" data-needs-profile>View Full Planner</button>
+    <button type="button" data-page="calendar" data-needs-profile>Calendar</button>
+    <button type="button" data-page="progress" data-needs-profile>Progress</button>
+    <button type="button" data-page="feasibility" data-needs-profile>Feasibility</button>
+    <button type="button" data-page="setup">Plan Settings</button>
+    <button type="button" data-page="appearance">Appearance & Data</button>
+  </nav>
+</aside>
+
+<main>
+<section class="page active" id="page-setup">
+  <div class="top"><div><h1>Plan Settings</h1><p>Edit the current student or create a new profile. Your active plan stays unchanged until you generate/save.</p></div></div>
+  <div class="wizardSteps">
+    <button class="wizardStep active" data-step="1">1 · Student</button>
+    <button class="wizardStep" data-step="2">2 · Subjects</button>
+    <button class="wizardStep" data-step="3">3 · Strategy</button>
+    <button class="wizardStep" data-step="4">4 · Workload</button>
+    <button class="wizardStep" data-step="5">5 · Review</button>
+  </div>
+
+  <div class="wizardPane active" data-pane="1">
+    <div class="hero">
+      <div class="eyebrow">Universal CA Planner</div>
+      <h2>Start with your own study data.</h2>
+      <p>The planner adapts to different faculty, lecture counts, subject order, parallel subjects, off days and target dates. Nothing is hard-coded to one student.</p>
+      <div class="actions"><button class="btn primary" id="blankSetup">Start Blank</button><button class="btn" id="loadCATemplate">Load CA Final 5-Subject Template</button><button class="btn" id="loadRishabhPlan">Load My Current Plan</button></div>
+    </div>
+    <div class="panel">
+      <div class="formgrid">
+        <div class="field"><label>STUDENT / PROFILE NAME</label><input id="wName" placeholder="e.g. Rishabh"></div>
+        <div class="field"><label>PLANNING START DATE</label><input id="wStart" type="date"></div>
+        <div class="field"><label>FINAL LECTURE TARGET</label><input id="wTarget" type="date"></div>
+        <div class="field"><label>MAX LECTURES IN ANY DAY</label><input id="wMaxDaily" type="number" min="1" max="10" value="4"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizardPane" data-pane="2">
+    <div class="panel" style="margin-top:0">
+      <div class="panelHead"><div><h2>Subjects</h2><p>Add, remove and edit subjects. Faculty and lecture duration are optional.</p></div><button class="btn primary" id="addWizardSubject">+ Add Subject</button></div>
+      <div class="subjectEditor" id="wizardSubjects"></div>
+    </div>
+  </div>
+
+  <div class="wizardPane" data-pane="3">
+    <div class="panel" style="margin-top:0">
+      <div class="panelHead"><div><h2>Planning Strategy</h2><p>Choose the broad style, then define each subject's priority and start rule.</p></div></div>
+      <div class="strategyCards">
+        <label class="strategyCard"><input type="radio" name="wMode" value="custom" checked><strong>Custom Roadmap</strong><p>Mix some subjects now and unlock others later using dependencies.</p></label>
+        <label class="strategyCard"><input type="radio" name="wMode" value="together"><strong>All Together</strong><p>Every unfinished subject can appear immediately.</p></label>
+        <label class="strategyCard"><input type="radio" name="wMode" value="sequential"><strong>One-by-One</strong><p>Finish subjects in the order shown in the subject list.</p></label>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="subjectEditor" id="wizardStrategySubjects"></div>
+    </div>
+  </div>
+
+  <div class="wizardPane" data-pane="4">
+    <div class="panel" style="margin-top:0">
+      <div class="panelHead"><div><h2>Daily Workload</h2><p>Hard means more total work, not automatically more of the same subject.</p></div></div>
+      <div class="grid3">
+        <div class="field"><label>EASY DAY LECTURES</label><input id="wEasy" type="number" min="0" max="10" value="2"></div>
+        <div class="field"><label>NORMAL DAY LECTURES</label><input id="wNormal" type="number" min="0" max="10" value="3"></div>
+        <div class="field"><label>HARD DAY LECTURES</label><input id="wHard" type="number" min="0" max="10" value="4"></div>
+        <div class="field"><label>MAX SUBJECTS / DAY</label><input id="wMaxSubjects" type="number" min="1" max="6" value="3"></div>
+        <div class="field"><label>MIXING STYLE</label><select id="wMix"><option value="balanced">Prefer subject/category variety</option><option value="focus">Prioritize focus strongly</option><option value="neutral">Neutral</option></select></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panelHead"><div><h2>Weekly Intensity</h2><p>Choose Easy, Normal, Hard or Off for each weekday.</p></div></div>
+      <div class="weekGrid" id="wizardWeek"></div>
+    </div>
+  </div>
+
+  <div class="wizardPane" data-pane="5">
+    <div class="grid2">
+      <div class="panel" style="margin-top:0"><div class="panelHead"><div><h2>Review Your Inputs</h2><p>Generate only after the setup looks right.</p></div></div><div class="reviewTable" id="wizardReview"></div></div>
+      <div class="panel" style="margin-top:0"><div class="panelHead"><div><h2>Ready?</h2><p>The full planner will be generated immediately and saved in this browser.</p></div></div><div id="wizardValidation" class="notice">Complete the setup, then generate your planner.</div><button class="btn primary" style="width:100%;margin-top:10px" id="generatePlanner">Generate Planner</button></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="wizardBack">← Back</button>
+    <button class="btn primary" id="wizardNext">Next →</button>
+  </div>
+</section>
+
+<section class="page" id="page-dashboard">
+  <div class="top"><div><h1>Dashboard</h1><p id="dashSubtitle">Your generated study command centre.</p></div></div>
+  <div class="hero">
+    <div class="eyebrow">Generated Planner</div>
+    <h2 id="dashHero">—</h2>
+    <p id="dashDescription">—</p>
+    <div class="actions"><button class="btn primary jump" data-go="today">Open Today's Plan</button><button class="btn jump" data-go="planner">View Full Planner</button><button class="btn jump" data-go="setup">Edit Inputs</button></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><small>COMPLETED</small><strong id="dashCompleted">0</strong></div>
+    <div class="stat"><small>REMAINING</small><strong id="dashRemaining">0</strong></div>
+    <div class="stat"><small>PROJECTED FINISH</small><strong id="dashFinish">—</strong></div>
+    <div class="stat"><small>TARGET BUFFER</small><strong id="dashBuffer">—</strong></div>
+    <div class="stat"><small>MAX / DAY</small><strong id="dashMax">—</strong></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><div class="panelHead"><div><h2>Next 7 Planned Days</h2></div></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Type</th><th>Mix</th><th>Total</th></tr></thead><tbody id="dashNext7"></tbody></table></div></div>
+    <div class="panel"><div class="panelHead"><div><h2>Feasibility</h2></div></div><div id="dashFeasibility"></div></div>
+  </div>
+  <div class="panel"><div class="panelHead"><div><h2>Subjects</h2></div></div><div class="subjectCards" id="dashSubjects"></div></div>
+</section>
+
+<section class="page" id="page-today">
+  <div class="top"><div><h1>Today / Daily Log</h1><p>Select any generated date and record actual lectures completed.</p></div><input id="todayDate" type="date"></div>
+  <div class="grid2">
+    <div class="panel" style="margin-top:0"><div class="panelHead"><div><h2 id="todayHeading">—</h2><p id="todayMeta">—</p></div></div><div id="todayLines"></div><div class="toolbar"><select id="manualSubjectSelect"></select><button class="btn" id="addManualSubject">+ Add Subject</button></div><div style="font-size:9px;color:var(--muted);margin-top:7px">Change every quantity manually. Extra lectures are allowed up to your daily maximum.</div></div>
+    <div class="panel" style="margin-top:0"><div class="panelHead"><div><h2>Actual Progress</h2><p>Re-saving the same date replaces that day's previous entry.</p></div></div><div class="notice" id="todaySummary">—</div><div class="actions"><button class="btn" id="fillPlanned">Use Planned Numbers</button><button class="btn primary" id="saveDay">Save Day</button></div><div id="todaySaved" style="font-size:10px;color:var(--muted);margin-top:8px"></div></div>
+  </div>
+</section>
+
+<section class="page" id="page-planner">
+  <div class="top"><div><h1>View Full Planner</h1><p>Complete generated schedule through the target date.</p></div></div>
+  <div class="panel" style="margin-top:0">
+    <div class="toolbar"><input id="planSearch" placeholder="Search date, day or subject"><select id="planFilter"><option value="">All days</option><option>Easy</option><option>Normal</option><option>Hard</option><option>Off</option></select><button class="btn" id="exportPlanCsv">Export Planner CSV</button></div>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Date</th><th>Day</th><th>Type</th><th>Subject Mix</th><th>Total</th><th>Status</th></tr></thead><tbody id="fullPlannerBody"></tbody></table></div>
+  </div>
+</section>
+
+<section class="page" id="page-feasibility">
+  <div class="top"><div><h1>Feasibility</h1><p>If the target slips, choose how the planner should respond.</p></div></div>
+  <div class="panel" style="margin-top:0">
+    <div id="feasStatus" class="notice">—</div>
+    <div class="feasGrid">
+      <label class="choice"><input type="radio" name="feasChoice" value="rescue" checked><strong>Keep Target</strong><p>Increase Easy/Normal/Hard load within your maximum daily limit.</p></label>
+      <label class="choice"><input type="radio" name="feasChoice" value="date"><strong>Keep Current Workload</strong><p>Move the target to the earliest realistic completion date.</p></label>
+      <label class="choice"><input type="radio" name="feasChoice" value="compromise"><strong>Balanced Compromise</strong><p>Increase workload moderately and extend the target slightly.</p></label>
+      <label class="choice"><input type="radio" name="feasChoice" value="manual"><strong>Adjust Manually</strong><p>Return to setup and change subject rules yourself.</p></label>
+    </div>
+    <div id="feasDetails" class="notice" style="margin-top:10px">Choose an option above.</div>
+    <button class="btn primary" style="margin-top:10px" id="applyFeasibility">Apply Option</button>
+  </div>
+</section>
+
+
+<section class="page" id="page-calendar">
+  <div class="top">
+    <div><h1>Calendar</h1><p>Monthly view of your complete lecture plan. Tap any day to open it in Today.</p></div>
+  </div>
+  <div class="panel" style="margin-top:0">
+    <div class="calendarToolbar">
+      <button class="btn small calendarNavBtn" id="calendarPrev" type="button" aria-label="Previous month">←</button>
+      <div class="calendarMonthTitle" id="calendarMonthTitle">—</div>
+      <button class="btn small calendarNavBtn" id="calendarNext" type="button" aria-label="Next month">→</button>
+      <button class="btn small" id="calendarToday" type="button">Current Plan Month</button>
+    </div>
+    <div class="calendarLegend">
+      <span><i class="legendDot hardDot"></i>Hard</span>
+      <span><i class="legendDot normalDot"></i>Normal</span>
+      <span><i class="legendDot easyDot"></i>Easy</span>
+      <span><i class="legendDot savedDot"></i>Saved</span>
+    </div>
+    <div class="calendarWeekdays">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div class="calendarGrid" id="calendarGrid"></div>
+  </div>
+  <div class="panel">
+    <div class="panelHead"><div><h2 id="calendarSelectedTitle">Select a date</h2><p id="calendarSelectedMeta">Tap a calendar day to preview its lecture mix.</p></div><button class="btn primary small" id="calendarOpenDay" type="button" disabled>Open in Today</button></div>
+    <div id="calendarSelectedPlan" class="notice">No date selected yet.</div>
+  </div>
+</section>
+
+<section class="page" id="page-progress">
+  <div class="top"><div><h1>Progress</h1><p>Actual study history and subject completion.</p></div></div>
+  <div class="stats">
+    <div class="stat"><small>DAYS LOGGED</small><strong id="progressDays">0</strong></div>
+    <div class="stat"><small>ACTUAL LOGGED</small><strong id="progressActual">0</strong></div>
+    <div class="stat"><small>BACKLOG</small><strong id="progressBacklog">0</strong></div>
+    <div class="stat"><small>COMPLETION</small><strong id="progressPct">0%</strong></div>
+    <div class="stat"><small>STATUS</small><strong id="progressStatus">—</strong></div>
+  </div>
+  <div class="panel"><div class="panelHead"><div><h2>Daily History</h2></div></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Planned</th><th>Actual</th><th>Backlog</th><th>Actual Mix</th></tr></thead><tbody id="historyBody"></tbody></table></div></div>
+</section>
+
+<section class="page" id="page-appearance">
+  <div class="top"><div><h1>Appearance & Data</h1><p>Theme, colours, backups and profile management.</p></div></div>
+  <div class="panel" style="margin-top:0">
+    <div class="appearanceGrid">
+      <button class="btn themeBtn" data-theme="dark">🌙 Dark</button>
+      <button class="btn themeBtn" data-theme="light">☀️ Light</button>
+      <button class="btn themeBtn" data-theme="system">◐ System</button>
+    </div>
+  </div>
+  <div class="panel"><div class="panelHead"><div><h2>Accent Colour</h2></div></div><div class="colorRow">
+    <button class="colorDot" data-accent="#1ed760" style="background:#1ed760" aria-label="Green"></button>
+    <button class="colorDot" data-accent="#2563eb" style="background:#2563eb" aria-label="Blue"></button>
+    <button class="colorDot" data-accent="#7c3aed" style="background:#7c3aed" aria-label="Purple"></button>
+    <button class="colorDot" data-accent="#ea580c" style="background:#ea580c" aria-label="Orange"></button>
+    <button class="colorDot" data-accent="#db2777" style="background:#db2777" aria-label="Pink"></button>
+    <input id="customAccent" type="color" value="#1ed760" aria-label="Custom accent colour">
+  </div></div>
+  <div class="panel"><div class="panelHead"><div><h2>Backup & Restore</h2><p>Export all student profiles or restore them on another device/browser.</p></div></div><div class="actions"><button class="btn primary" id="exportAllData">Export Backup</button><input id="restoreFile" type="file" accept=".json"><button class="btn" id="restoreAllData">Restore Backup</button><button class="btn danger" id="deleteProfile">Delete Active Profile</button></div></div>
+</section>
+</main>
+</div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{"use strict";
+const STORAGE_KEY="universal_ca_lecture_planner_clean_v3";
+const LEGACY_KEY="universal_ca_lecture_planner_v2";
+const PREF_KEY="universal_ca_lecture_planner_prefs_v2";
+const dayNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const shortDays=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const $=id=>document.getElementById(id);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const parseDate=v=>{const [y,m,d]=String(v).split("-").map(Number);return new Date(Date.UTC(y,m-1,d))};
+const iso=d=>d.toISOString().slice(0,10);
+const addDays=(v,n)=>{const d=parseDate(v);d.setUTCDate(d.getUTCDate()+n);return iso(d)};
+const dateDiff=(a,b)=>Math.round((parseDate(b)-parseDate(a))/86400000);
+const fmt=v=>parseDate(v).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"});
+const clamp=(n,min,max)=>Math.max(min,Math.min(max,Number(n)||0));
+
+let db={profiles:[],activeProfileId:null};
+try{db=JSON.parse(localStorage.getItem(STORAGE_KEY))||db}catch(e){}
+if(!Array.isArray(db.profiles))db.profiles=[];
+if(!db.profiles.length){
+  try{
+    const legacy=JSON.parse(localStorage.getItem(LEGACY_KEY)||"null");
+    if(legacy&&Array.isArray(legacy.profiles)&&legacy.profiles.length){
+      db=legacy;
+      if(!db.activeProfileId||!db.profiles.some(p=>p.id===db.activeProfileId))db.activeProfileId=db.profiles[0].id;
+    }
+  }catch(e){}
+}
+let prefs={theme:"dark",accent:"#1ed760"};
+try{prefs=Object.assign(prefs,JSON.parse(localStorage.getItem(PREF_KEY))||{})}catch(e){}
+let wizard=blankProfile(),wizardStep=1,toastTimer=null,currentSchedule=[],calendarCursor=null,calendarSelectedDate=null;
+
+function blankSubject(name=""){
+  return {id:uid(),name,faculty:"",total:0,baseCompleted:0,category:"Hybrid",durationHours:0,priority:"normal",maxDay:1,finishTarget:"",startRule:"now",startDate:"",deps:[],depMode:"all"};
+}
+function blankProfile(){
+  const today="2026-10-06";
+  return {
+    id:uid(),name:"",planStart:today,finalDate:"2026-12-31",maxDaily:4,maxSubjectsPerDay:3,
+    easy:2,normal:3,hard:4,mixMode:"balanced",mode:"custom",
+    week:{"0":"Normal","1":"Hard","2":"Hard","3":"Normal","4":"Hard","5":"Hard","6":"Normal"},
+    subjects:[],history:{},dateOverrides:{},createdAt:new Date().toISOString()
+  };
+}
+function caTemplate(){
+  const p=blankProfile();
+  p.subjects=[
+    blankSubject("FR"),blankSubject("AFM"),blankSubject("Audit"),blankSubject("DT"),blankSubject("GST / IDT")
+  ];
+  p.subjects.forEach((s,i)=>{s.category=i===2?"Theory":(i===0||i===1?"Practical":"Hybrid");s.maxDay=i<2?2:1});
+  return p;
+}
+function rishabhPlan(){
+  const p=blankProfile();p.name="Rishabh";p.planStart="2026-10-06";p.finalDate="2026-12-31";p.maxDaily=4;p.maxSubjectsPerDay=4;p.easy=3;p.normal=3;p.hard=4;p.mixMode="balanced";p.mode="custom";
+  const fr=blankSubject("FR"),afm=blankSubject("AFM"),idt=blankSubject("GST / IDT"),dt=blankSubject("DT"),audit=blankSubject("Audit");
+  Object.assign(fr,{faculty:"Akash Kandoi",total:110,baseCompleted:76,category:"Practical",priority:"primary",maxDay:2,startRule:"now",finishTarget:"2026-10-31"});
+  Object.assign(afm,{faculty:"Adish Jain",total:81,baseCompleted:3,category:"Practical",priority:"normal",maxDay:1,startRule:"now"});
+  Object.assign(idt,{faculty:"Akshash Garg",total:50,baseCompleted:3,category:"Hybrid",priority:"normal",maxDay:1,startRule:"now"});
+  Object.assign(dt,{faculty:"",total:76,baseCompleted:0,category:"Hybrid",priority:"normal",maxDay:1,startRule:"now"});
+  Object.assign(audit,{faculty:"Rishabh Jain Sir",total:55,baseCompleted:0,category:"Theory",priority:"normal",maxDay:1,startRule:"after",deps:[afm.id,idt.id,dt.id],depMode:"any"});
+  p.subjects=[fr,afm,idt,dt,audit];return p;
+}
+
+function ensureActiveProfile(){
+  if(!Array.isArray(db.profiles))db.profiles=[];
+  if(!db.profiles.length){
+    const p=rishabhPlan();db.profiles=[p];db.activeProfileId=p.id;
+  }
+  if(!db.profiles.some(p=>p.id===db.activeProfileId))db.activeProfileId=db.profiles[0].id;
+  db.profiles.forEach(p=>{if(!p.history)p.history={};if(!p.dateOverrides)p.dateOverrides={}});
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db))}catch(e){}
+}
+ensureActiveProfile();
+
+function activeProfile(){return db.profiles.find(p=>p.id===db.activeProfileId)||null}
+function saveDB(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(db));return true}
+  catch(e){notify("Could not save locally. Export a backup.","bad");return false}
+}
+function savePrefs(){try{localStorage.setItem(PREF_KEY,JSON.stringify(prefs))}catch(e){}}
+function notify(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2300)}
+function luminance(hex){const c=hex.replace("#","");const a=[0,2,4].map(i=>parseInt(c.slice(i,i+2),16)/255).map(v=>v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));return .2126*a[0]+.7152*a[1]+.0722*a[2]}
+function applyAppearance(){
+  const theme=prefs.theme==="system"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):prefs.theme;
+  document.documentElement.dataset.theme=theme;document.documentElement.style.setProperty("--accent",prefs.accent);
+  document.documentElement.style.setProperty("--accentText",luminance(prefs.accent)>.5?"#07130a":"#fff");
+  $("customAccent").value=prefs.accent;
+}
+function showPage(name){
+  const p=$("page-"+name);if(!p)return;
+  document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x===p));
+  document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===name));
+  if(name==="dashboard")renderDashboard();if(name==="today")renderToday();if(name==="planner")renderPlanner();
+  if(name==="calendar")renderCalendar();if(name==="feasibility")renderFeasibility();if(name==="progress")renderProgress();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function refreshProfileUI(){
+  const sel=$("profileSelect"),current=activeProfile();sel.innerHTML="";
+  if(!db.profiles.length){
+    const o=document.createElement("option");o.value="";o.textContent="No profile";sel.appendChild(o);
+  }else{
+    db.profiles.forEach(p=>{const o=document.createElement("option");o.value=p.id;o.textContent=p.name||"Unnamed profile";o.selected=p.id===db.activeProfileId;sel.appendChild(o)});
+  }
+  const has=!!current;
+  document.querySelectorAll("[data-needs-profile]").forEach(b=>b.disabled=!has);
+  $("editProfile").disabled=!has;$("deleteProfile").disabled=!has;
+  $("profileNameText").textContent=current?.name||"No active profile";
+  $("profileAvatar").textContent=(current?.name||"?").trim().charAt(0).toUpperCase()||"?";
+  $("profileStatus").textContent=current?`${current.subjects?.length||0} subjects • target ${current.finalDate||"not set"}`:"Create a profile to begin";
+}
+function currentCompleted(profile,subjectId){
+  const s=profile.subjects.find(x=>x.id===subjectId);let n=Number(s?.baseCompleted||0);
+  Object.values(profile.history||{}).forEach(r=>n+=Number(r.mix?.[subjectId]||0));
+  return Math.min(Number(s?.total||0),n);
+}
+function actualRemainingMap(profile){
+  return Object.fromEntries(profile.subjects.map(s=>[s.id,Math.max(0,Number(s.total||0)-currentCompleted(profile,s.id))]));
+}
+function subjectEligible(profile,s,date,index,remaining){
+  if((remaining[s.id]||0)<=0)return false;
+  if(profile.mode==="together")return true;
+  if(profile.mode==="sequential"){
+    const idx=profile.subjects.findIndex(x=>(remaining[x.id]||0)>0);
+    return index===idx;
+  }
+  if(s.startRule==="now")return true;
+  if(s.startRule==="date")return !!s.startDate&&parseDate(date)>=parseDate(s.startDate);
+  if(s.startRule==="after"){
+    if(!s.deps?.length)return false;
+    return s.depMode==="any"?s.deps.some(id=>(remaining[id]||0)<=0):s.deps.every(id=>(remaining[id]||0)<=0);
+  }
+  return false;
+}
+function profileDayType(profile,date){
+  const ov=profile.dateOverrides?.[date];
+  if(ov?.type)return ov.type;
+  return profile.week[String(parseDate(date).getUTCDay())]||"Normal";
+}
+function dayCapacity(profile,date){
+  const type=profileDayType(profile,date),ov=profile.dateOverrides?.[date];
+  if(type==="Off")return {type,total:0};
+  if(type==="Custom")return {type,total:clamp(ov?.total,0,profile.maxDaily)};
+  const raw=type==="Easy"?profile.easy:type==="Hard"?profile.hard:profile.normal;
+  return {type,total:clamp(raw,0,profile.maxDaily)};
+}
+function priorityMult(v){return v==="primary"?2.1:v==="light"?.72:1}
+function planAutoDay(profile,date,remaining){
+  const cap=dayCapacity(profile,date);if(cap.total<=0)return {date,level:cap.type,rows:[],total:0};
+  const active=profile.subjects.map((s,i)=>({s,i})).filter(x=>subjectEligible(profile,x.s,date,x.i,remaining));
+  if(!active.length)return {date,level:cap.type,rows:[],total:0};
+  const scored=active.map(x=>{
+    const target=x.s.finishTarget||profile.finalDate;
+    const days=Math.max(1,dateDiff(date,target)+1),r=remaining[x.s.id]||0;
+    return {...x,remaining:r,planned:0,score:(r/days)*priorityMult(x.s.priority)};
+  }).sort((a,b)=>b.score-a.score);
+  const chosen=scored.slice(0,Math.max(1,profile.maxSubjectsPerDay||3));
+  const cats=new Set();let guard=0;
+  while(chosen.reduce((a,x)=>a+x.planned,0)<cap.total&&guard++<50){
+    let best=null,bestScore=-1;
+    for(const x of chosen){
+      const max=Math.max(1,Number(x.s.maxDay)||1);
+      if(x.planned>=Math.min(max,x.remaining))continue;
+      let score=x.score/(1+x.planned);
+      if(profile.mixMode==="balanced"&&!cats.has(x.s.category))score*=1.45;
+      if(profile.mixMode==="focus"&&x.s.priority==="primary")score*=1.25;
+      if(best===null||score>bestScore){best=x;bestScore=score}
+    }
+    if(!best)break;
+    best.planned++;cats.add(best.s.category);
+  }
+  const rows=chosen.filter(x=>x.planned>0);
+  return {date,level:cap.type,rows,total:rows.reduce((a,b)=>a+b.planned,0)};
+}
+function generateSchedule(profile,endDate=profile.finalDate){
+  const remaining=Object.fromEntries(profile.subjects.map(s=>[s.id,Math.max(0,Number(s.total||0)-Number(s.baseCompleted||0))]));
+  const plans=[];let date=profile.planStart,guard=0;
+  while(parseDate(date)<=parseDate(endDate)&&guard++<730){
+    const saved=profile.history?.[date];
+    if(saved){
+      Object.entries(saved.mix||{}).forEach(([id,n])=>remaining[id]=Math.max(0,(remaining[id]||0)-Number(n||0)));
+      plans.push({date,level:profileDayType(profile,date),rows:Object.entries(saved.mix||{}).filter(([,n])=>n>0).map(([id,n])=>({s:profile.subjects.find(x=>x.id===id),planned:Number(n)})).filter(x=>x.s),total:Number(saved.actual||0),saved:true,plannedOriginal:Number(saved.planned||0)});
+    }else{
+      const p=planAutoDay(profile,date,remaining);plans.push(p);p.rows.forEach(r=>remaining[r.s.id]=Math.max(0,remaining[r.s.id]-r.planned));
+    }
+    date=addDays(date,1);
+  }
+  return {plans,remaining};
+}
+function projectedCompletion(profile,maxDays=540){
+  const remaining=Object.fromEntries(profile.subjects.map(s=>[s.id,Math.max(0,Number(s.total||0)-Number(s.baseCompleted||0))]));
+  let date=profile.planStart,guard=0,stalled=0;
+  while(guard++<maxDays){
+    const saved=profile.history?.[date];
+    const before=Object.values(remaining).reduce((a,b)=>a+b,0);
+    if(before<=0)return addDays(date,-1);
+    if(saved)Object.entries(saved.mix||{}).forEach(([id,n])=>remaining[id]=Math.max(0,(remaining[id]||0)-Number(n||0)));
+    else{const p=planAutoDay(profile,date,remaining);p.rows.forEach(r=>remaining[r.s.id]=Math.max(0,remaining[r.s.id]-r.planned))}
+    const after=Object.values(remaining).reduce((a,b)=>a+b,0);stalled=after===before?stalled+1:0;if(stalled>60)return null;
+    date=addDays(date,1);
+  }
+  return null;
+}
+function feasibility(profile){
+  const sim=generateSchedule(profile),left=Object.values(sim.remaining).reduce((a,b)=>a+b,0),finish=projectedCompletion(profile);
+  return {sim,left,finish,feasible:left===0};
+}
+function mixText(rows){return rows?.length?rows.map(r=>`${r.s.name} ×${r.planned}`).join(" + "):"No lectures"}
+function syncWizardFromProfile(profile){wizard=JSON.parse(JSON.stringify(profile));wizardStep=1;renderWizard()}
+function captureWizardBasics(){
+  wizard.name=$("wName").value.trim();wizard.planStart=$("wStart").value;wizard.finalDate=$("wTarget").value;
+  wizard.maxDaily=clamp($("wMaxDaily").value,1,10);
+  const mode=document.querySelector('input[name="wMode"]:checked');if(mode)wizard.mode=mode.value;
+  wizard.easy=clamp($("wEasy").value,0,wizard.maxDaily);wizard.normal=clamp($("wNormal").value,0,wizard.maxDaily);wizard.hard=clamp($("wHard").value,0,wizard.maxDaily);
+  wizard.maxSubjectsPerDay=clamp($("wMaxSubjects").value,1,6);wizard.mixMode=$("wMix").value;
+}
+function renderWizard(){
+  $("wName").value=wizard.name||"";$("wStart").value=wizard.planStart||"";$("wTarget").value=wizard.finalDate||"";$("wMaxDaily").value=wizard.maxDaily||4;
+  document.querySelectorAll('input[name="wMode"]').forEach(r=>r.checked=r.value===wizard.mode);
+  $("wEasy").value=wizard.easy??2;$("wNormal").value=wizard.normal??3;$("wHard").value=wizard.hard??4;$("wMaxSubjects").value=wizard.maxSubjectsPerDay||3;$("wMix").value=wizard.mixMode||"balanced";
+  document.querySelectorAll(".wizardStep").forEach(b=>b.classList.toggle("active",Number(b.dataset.step)===wizardStep));
+  document.querySelectorAll(".wizardPane").forEach(p=>p.classList.toggle("active",Number(p.dataset.pane)===wizardStep));
+  $("wizardBack").disabled=wizardStep===1;$("wizardNext").style.display=wizardStep===5?"none":"";
+  renderWizardSubjects();renderWizardStrategy();renderWizardWeek();renderWizardReview();
+}
+function renderWizardSubjects(){
+  const wrap=$("wizardSubjects");wrap.innerHTML="";
+  if(!wizard.subjects.length){wrap.innerHTML='<div class="empty">No subjects yet. Use “Add Subject” or load the CA Final template.</div>';return}
+  wizard.subjects.forEach((s,i)=>{
+    const card=document.createElement("div");card.className="subjectEditCard";
+    card.innerHTML=`<div class="subjectEditTop"><div><strong>${esc(s.name||"Unnamed Subject")}</strong><span>Subject ${i+1}</span></div><button class="btn small danger" data-remove="${s.id}">Remove</button></div>
+      <div class="subjectGrid">
+        <div class="field"><label>SUBJECT</label><input data-id="${s.id}" data-k="name" value="${esc(s.name)}"></div>
+        <div class="field"><label>FACULTY</label><input data-id="${s.id}" data-k="faculty" value="${esc(s.faculty||"")}" placeholder="Optional"></div>
+        <div class="field"><label>TOTAL LECTURES</label><input type="number" min="0" data-id="${s.id}" data-k="total" value="${s.total||0}"></div>
+        <div class="field"><label>COMPLETED</label><input type="number" min="0" data-id="${s.id}" data-k="baseCompleted" value="${s.baseCompleted||0}"></div>
+        <div class="field"><label>CATEGORY</label><select data-id="${s.id}" data-k="category"><option ${s.category==="Practical"?"selected":""}>Practical</option><option ${s.category==="Theory"?"selected":""}>Theory</option><option ${s.category==="Hybrid"?"selected":""}>Hybrid</option></select></div>
+        <div class="field"><label>AVG LECTURE HOURS</label><input type="number" min="0" step=".25" data-id="${s.id}" data-k="durationHours" value="${s.durationHours||0}"></div>
+      </div>`;
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll("[data-k]").forEach(inp=>{const update=()=>{const sub=wizard.subjects.find(x=>x.id===inp.dataset.id),k=inp.dataset.k;if(!sub)return;if(["total","baseCompleted","durationHours"].includes(k))sub[k]=Math.max(0,Number(inp.value)||0);else sub[k]=inp.value;if(sub.baseCompleted>sub.total)sub.baseCompleted=sub.total;};inp.addEventListener("input",update);inp.addEventListener("change",update);});
+  wrap.querySelectorAll("[data-remove]").forEach(b=>b.addEventListener("click",()=>{wizard.subjects=wizard.subjects.filter(s=>s.id!==b.dataset.remove);wizard.subjects.forEach(s=>s.deps=(s.deps||[]).filter(id=>id!==b.dataset.remove));renderWizard()}));
+}
+function renderWizardStrategy(){
+  const wrap=$("wizardStrategySubjects");wrap.innerHTML="";
+  if(!wizard.subjects.length){wrap.innerHTML='<div class="empty">Add subjects first.</div>';return}
+  wizard.subjects.forEach((s,i)=>{
+    const others=wizard.subjects.filter(x=>x.id!==s.id).map(x=>`<option value="${x.id}" ${(s.deps||[]).includes(x.id)?"selected":""}>${esc(x.name||"Subject")}</option>`).join("");
+    const card=document.createElement("div");card.className="subjectEditCard";
+    card.innerHTML=`<div class="subjectEditTop"><div><strong>${esc(s.name||"Unnamed Subject")}</strong><span>Order ${i+1}</span></div></div>
+      <div class="subjectGrid">
+        <div class="field"><label>PRIORITY</label><select data-strategy-id="${s.id}" data-k="priority"><option value="primary" ${s.priority==="primary"?"selected":""}>Primary</option><option value="normal" ${s.priority==="normal"?"selected":""}>Normal</option><option value="light" ${s.priority==="light"?"selected":""}>Light</option></select></div>
+        <div class="field"><label>MAX / DAY</label><input type="number" min="1" max="${wizard.maxDaily||10}" data-strategy-id="${s.id}" data-k="maxDay" value="${s.maxDay||1}"></div>
+        <div class="field"><label>SUBJECT FINISH TARGET</label><input type="date" data-strategy-id="${s.id}" data-k="finishTarget" value="${s.finishTarget||""}"></div>
+        <div class="field"><label>START RULE</label><select data-strategy-id="${s.id}" data-k="startRule"><option value="now" ${s.startRule==="now"?"selected":""}>Start Now</option><option value="date" ${s.startRule==="date"?"selected":""}>Start on Date</option><option value="after" ${s.startRule==="after"?"selected":""}>After Subject(s)</option></select></div>
+        <div class="field"><label>START DATE</label><input type="date" data-strategy-id="${s.id}" data-k="startDate" value="${s.startDate||""}"></div>
+        <div class="field"><label>DEPENDENCY MODE</label><select data-strategy-id="${s.id}" data-k="depMode"><option value="all" ${s.depMode==="all"?"selected":""}>After ALL selected</option><option value="any" ${s.depMode==="any"?"selected":""}>After ANY selected</option></select></div>
+        <div class="field full"><label>DEPENDENCIES</label><select class="depSelect" multiple data-strategy-id="${s.id}" data-k="deps">${others}</select></div>
+      </div>`;
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll("[data-strategy-id]").forEach(inp=>inp.addEventListener("change",()=>{
+    const s=wizard.subjects.find(x=>x.id===inp.dataset.strategyId),k=inp.dataset.k;if(!s)return;
+    if(k==="maxDay")s[k]=clamp(inp.value,1,wizard.maxDaily||10);else if(k==="deps")s.deps=[...inp.selectedOptions].map(o=>o.value);else s[k]=inp.value;
+  }));
+}
+function renderWizardWeek(){
+  const wrap=$("wizardWeek");wrap.innerHTML="";
+  dayNames.forEach((name,i)=>{
+    const box=document.createElement("div");box.className="dayBox";box.innerHTML=`<strong>${name}</strong><select data-week="${i}"><option ${wizard.week?.[i]==="Off"?"selected":""}>Off</option><option ${wizard.week?.[i]==="Easy"?"selected":""}>Easy</option><option ${wizard.week?.[i]==="Normal"?"selected":""}>Normal</option><option ${wizard.week?.[i]==="Hard"?"selected":""}>Hard</option></select>`;wrap.appendChild(box);
+  });
+  wrap.querySelectorAll("[data-week]").forEach(s=>s.addEventListener("change",()=>wizard.week[s.dataset.week]=s.value));
+}
+function validateWizard(){
+  captureWizardBasics();
+  const errs=[];
+  if(!wizard.name)errs.push("Enter a profile/student name.");
+  if(!wizard.planStart||!wizard.finalDate)errs.push("Choose start and target dates.");
+  else if(parseDate(wizard.finalDate)<parseDate(wizard.planStart))errs.push("Target date must be after the start date.");
+  if(!wizard.subjects.length)errs.push("Add at least one subject.");
+  wizard.subjects.forEach((s,i)=>{
+    if(!s.name.trim())errs.push(`Subject ${i+1}: enter a name.`);
+    if(Number(s.total)<=0)errs.push(`${s.name||"Subject "+(i+1)}: total lectures must be above zero.`);
+    if(Number(s.baseCompleted)>Number(s.total))errs.push(`${s.name}: completed cannot exceed total.`);
+    if(s.startRule==="after"&&!s.deps?.length)errs.push(`${s.name}: choose at least one dependency or change its start rule.`);
+    if(s.startRule==="date"&&!s.startDate)errs.push(`${s.name}: choose a start date.`);
+  });
+  return errs;
+}
+function renderWizardReview(){
+  captureWizardBasics();
+  const wrap=$("wizardReview");
+  const rem=wizard.subjects.reduce((a,s)=>a+Math.max(0,Number(s.total||0)-Number(s.baseCompleted||0)),0);
+  wrap.innerHTML=`<div class="reviewRow"><span>Student</span><strong>${esc(wizard.name||"Not entered")}</strong></div>
+  <div class="reviewRow"><span>Planning window</span><strong>${wizard.planStart?fmt(wizard.planStart):"—"} → ${wizard.finalDate?fmt(wizard.finalDate):"—"}</strong></div>
+  <div class="reviewRow"><span>Subjects</span><strong>${wizard.subjects.length}</strong></div>
+  <div class="reviewRow"><span>Remaining lectures</span><strong>${rem}</strong></div>
+  <div class="reviewRow"><span>Strategy</span><strong>${wizard.mode}</strong></div>
+  <div class="reviewRow"><span>Daily max</span><strong>${wizard.maxDaily}</strong></div>`;
+  const errs=validateWizard();$("wizardValidation").className="notice "+(errs.length?"warn":"");$("wizardValidation").innerHTML=errs.length?errs.map(x=>"• "+esc(x)).join("<br>"):"Setup looks valid. Generate the planner when ready.";
+}
+function renderDashboard(){
+  const p=activeProfile();if(!p)return;const f=feasibility(p),sim=f.sim;
+  const total=p.subjects.reduce((a,s)=>a+Number(s.total||0),0),completed=p.subjects.reduce((a,s)=>a+currentCompleted(p,s.id),0),remaining=Math.max(0,total-completed);
+  const finish=f.finish,buffer=finish?dateDiff(finish,p.finalDate):null;
+  $("dashSubtitle").textContent=`${p.name}'s generated study command centre.`;
+  $("dashHero").textContent=`${remaining} lectures remaining • target ${fmt(p.finalDate)}`;
+  $("dashDescription").textContent=`Planning mode: ${p.mode}. The schedule automatically adapts to saved actual progress, subject dependencies, priorities and weekday workload.`;
+  $("dashCompleted").textContent=completed;$("dashRemaining").textContent=remaining;$("dashFinish").textContent=finish?fmt(finish).replace(/ \d{4}$/,""):"Blocked";$("dashBuffer").textContent=buffer===null?"—":(buffer>=0?buffer+" days":Math.abs(buffer)+" days late");$("dashMax").textContent=p.maxDaily;
+  const rows=sim.plans.filter(x=>!x.saved&&x.total>0).slice(0,7);$("dashNext7").innerHTML=rows.length?rows.map(r=>`<tr><td>${fmt(r.date)}</td><td>${r.level}</td><td class="mix">${esc(mixText(r.rows))}</td><td>${r.total}</td></tr>`).join(""):'<tr><td colspan="4">No future planned lectures.</td></tr>';
+  $("dashFeasibility").className="notice "+(f.feasible?"":"warn");$("dashFeasibility").textContent=f.feasible?`Target is feasible with the current settings. Projected completion: ${finish?fmt(finish):"within target"}.`:`Target is not currently feasible. ${f.left} lectures remain by ${fmt(p.finalDate)}. Open Feasibility for options.`;
+  $("dashSubjects").innerHTML=p.subjects.map(s=>{const done=currentCompleted(p,s.id),pct=s.total?Math.round(done/s.total*100):0;return `<article class="subjectCard"><div class="subjectCardTop"><div><span class="kicker">${esc(s.faculty||s.category)}</span><h3>${esc(s.name)}</h3></div><span class="badge">${pct}%</span></div><div class="progress"><span style="width:${pct}%"></span></div><div class="subjectMeta"><span>${done}/${s.total} completed</span><span>${Math.max(0,s.total-done)} remaining</span></div></article>`}).join("");
+}
+function renderToday(){
+  const p=activeProfile();if(!p)return;const sim=generateSchedule(p),date=$("todayDate").value||p.planStart;$("todayDate").min=p.planStart;$("todayDate").max=p.finalDate;$("todayDate").value=date;
+  const plan=sim.plans.find(x=>x.date===date),saved=p.history?.[date];const wrap=$("todayLines");$("manualSubjectSelect").innerHTML=p.subjects.map(sub=>`<option value="${sub.id}">${esc(sub.name)}</option>`).join("");
+  if(!plan){$("todayHeading").textContent=date;$("todayMeta").textContent="Outside generated plan";wrap.innerHTML='<div class="empty">Choose a date inside the planning window.</div>';$("todaySummary").textContent="No plan for this date.";return}
+  const displayRows=saved?.plannedMix?Object.entries(saved.plannedMix).map(([id,n])=>({s:p.subjects.find(x=>x.id===id),planned:Number(n)})).filter(x=>x.s&&x.planned>0):plan.rows;const plannedTotal=saved?.planned??displayRows.reduce((a,r)=>a+r.planned,0);
+  $("todayHeading").textContent=`${fmt(date)} • ${plan.level}`;$("todayMeta").textContent=`${plannedTotal} planned lectures • manual changes allowed`;const actualSource=saved?.mix||Object.fromEntries(displayRows.map(r=>[r.s.id,r.planned]));const ids=[...new Set([...displayRows.map(r=>r.s.id),...Object.keys(actualSource).filter(id=>Number(actualSource[id])>0)])];
+  wrap.innerHTML=ids.length?ids.map(id=>{const sub=p.subjects.find(x=>x.id===id);if(!sub)return"";const planned=displayRows.find(r=>r.s.id===id)?.planned||0;return `<div class="todayLine"><div><strong>${esc(sub.name)}</strong><small>${planned} planned • enter actual</small></div><div style="display:flex;gap:6px"><input type="number" min="0" max="${p.maxDaily}" data-today-id="${sub.id}" value="${actualSource[sub.id]??planned}"><button class="btn small danger" type="button" data-remove-today="${sub.id}">×</button></div></div>`}).join(""):'<div class="empty">No subjects planned. Add any subject manually below.</div>';
+  $("todaySummary").textContent=`Base plan: ${plannedTotal} lectures • ${mixText(displayRows)}`;$("todaySaved").textContent=saved?`Saved actual: ${saved.actual} • backlog: ${saved.backlog}`:"";wrap.querySelectorAll("[data-remove-today]").forEach(b=>b.addEventListener("click",()=>b.closest(".todayLine").remove()));
+}
+function renderPlanner(){
+  const p=activeProfile();if(!p)return;currentSchedule=generateSchedule(p).plans;const q=$("planSearch").value.trim().toLowerCase(),f=$("planFilter").value;
+  const rows=currentSchedule.filter(r=>(!f||r.level===f)&&(!q||(`${r.date} ${dayNames[parseDate(r.date).getUTCDay()]} ${mixText(r.rows)}`).toLowerCase().includes(q)));
+  $("fullPlannerBody").innerHTML=rows.length?rows.map((r,i)=>`<tr><td>${i+1}</td><td>${fmt(r.date)}</td><td>${dayNames[parseDate(r.date).getUTCDay()]}</td><td><span class="tag ${r.level.toLowerCase()}">${r.level}</span></td><td class="mix">${esc(mixText(r.rows))}</td><td>${r.total}</td><td>${r.saved?`Saved ${r.total}`:"Planned"}</td></tr>`).join(""):'<tr><td colspan="7">No matching rows.</td></tr>';
+}
+function findRescue(profile){
+  const original={easy:profile.easy,normal:profile.normal,hard:profile.hard,maxSubjectsPerDay:profile.maxSubjectsPerDay};
+  const candidates=[
+    {easy:Math.min(profile.maxDaily,profile.easy+1),normal:Math.min(profile.maxDaily,profile.normal+1),hard:profile.maxDaily,maxSubjectsPerDay:profile.maxSubjectsPerDay},
+    {easy:Math.min(profile.maxDaily,profile.easy+1),normal:profile.maxDaily,hard:profile.maxDaily,maxSubjectsPerDay:Math.min(6,profile.maxSubjectsPerDay+1)},
+    {easy:profile.maxDaily,normal:profile.maxDaily,hard:profile.maxDaily,maxSubjectsPerDay:Math.min(6,profile.maxSubjectsPerDay+1)}
+  ];
+  for(const c of candidates){Object.assign(profile,c);const ok=generateSchedule(profile).remaining;if(Object.values(ok).every(v=>v<=0)){Object.assign(profile,original);return c}}
+  Object.assign(profile,original);return null;
+}
+function renderFeasibility(){
+  const p=activeProfile();if(!p)return;const f=feasibility(p),rescue=findRescue(p),alt=projectedCompletion(p,720);
+  $("feasStatus").className="notice "+(f.feasible?"":"warn");
+  $("feasStatus").textContent=f.feasible?`Current target is feasible. Projected completion: ${f.finish?fmt(f.finish):"within target"}.`:`Current target is not feasible. ${f.left} lectures remain by ${fmt(p.finalDate)}.`;
+  const selected=document.querySelector('input[name="feasChoice"]:checked')?.value||"rescue";
+  let detail="";
+  if(selected==="rescue")detail=rescue?`Keep ${fmt(p.finalDate)} by changing Easy/Normal/Hard to ${rescue.easy}/${rescue.normal}/${rescue.hard} lectures and up to ${rescue.maxSubjectsPerDay} subjects/day.`:"No automatic rescue found within your current maximum daily limit. Change a structural rule or use a later target.";
+  if(selected==="date")detail=alt?`Keep current workload. Earliest simulated completion date: ${fmt(alt)}.`:"Current rules stall before completion. Check dependencies or Off days.";
+  if(selected==="compromise"){const later=alt&&parseDate(alt)>parseDate(p.finalDate)?addDays(p.finalDate,Math.max(1,Math.floor(dateDiff(p.finalDate,alt)/2))):p.finalDate;detail=`Compromise: move target to ${fmt(later)} and increase Normal/Hard by one lecture where possible.`}
+  if(selected==="manual")detail="No automatic changes. You will return to Setup and edit rules yourself.";
+  $("feasDetails").textContent=detail;$("applyFeasibility").dataset.rescue=JSON.stringify(rescue||{});$("applyFeasibility").dataset.alt=alt||"";
+}
+
+function monthKeyFromDate(date){
+  const d=parseDate(date);return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;
+}
+function shiftMonth(monthKey,delta){
+  const [y,m]=monthKey.split("-").map(Number);
+  const d=new Date(Date.UTC(y,m-1+delta,1));
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,"0")}`;
+}
+function renderCalendarSelected(){
+  const p=activeProfile();if(!p)return;
+  const date=calendarSelectedDate,btn=$("calendarOpenDay");
+  if(!date){
+    $("calendarSelectedTitle").textContent="Select a date";
+    $("calendarSelectedMeta").textContent="Tap a calendar day to preview its lecture mix.";
+    $("calendarSelectedPlan").textContent="No date selected yet.";
+    btn.disabled=true;return;
+  }
+  const plan=generateSchedule(p).plans.find(r=>r.date===date);
+  const saved=p.history?.[date];
+  $("calendarSelectedTitle").textContent=fmt(date);
+  $("calendarSelectedMeta").textContent=plan?`${dayNames[parseDate(date).getUTCDay()]} • ${plan.level} day`:"Outside the planning window";
+  $("calendarSelectedPlan").innerHTML=plan
+    ? `<strong>${saved?"Saved actual":"Planned"}:</strong> ${esc(mixText(plan.rows))} • ${plan.total} lecture${plan.total===1?"":"s"}${saved?` • backlog ${saved.backlog}`:""}`
+    : "No generated plan for this date.";
+  btn.disabled=!plan;
+}
+function renderCalendar(){
+  const p=activeProfile();if(!p)return;
+  if(!calendarCursor)calendarCursor=monthKeyFromDate(p.planStart);
+  const [year,month]=calendarCursor.split("-").map(Number);
+  const first=new Date(Date.UTC(year,month-1,1));
+  const daysInMonth=new Date(Date.UTC(year,month,0)).getUTCDate();
+  const firstWeekday=first.getUTCDay();
+  $("calendarMonthTitle").textContent=first.toLocaleDateString("en-GB",{month:"long",year:"numeric",timeZone:"UTC"});
+  const scheduleMap=new Map(generateSchedule(p).plans.map(r=>[r.date,r]));
+  const grid=$("calendarGrid");grid.innerHTML="";
+  for(let i=0;i<firstWeekday;i++){const blank=document.createElement("div");blank.className="calendarDay blank";grid.appendChild(blank)}
+  for(let day=1;day<=daysInMonth;day++){
+    const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const plan=scheduleMap.get(date),saved=p.history?.[date];
+    const cell=document.createElement("button");cell.type="button";
+    cell.className=`calendarDay${saved?" saved":""}${calendarSelectedDate===date?" selected":""}${!plan?" outsidePlan":""}`;
+    const chips=plan?.rows?.slice(0,3).map(r=>`<span class="calendarChip">${esc(r.s.name)} ×${r.planned}</span>`).join("")||"";
+    const extra=plan?.rows?.length>3?`<span class="calendarChip">+${plan.rows.length-3} more</span>`:"";
+    cell.innerHTML=`<div class="calendarDayNumber"><span>${day}</span>${plan?`<i class="calendarLevel ${plan.level}"></i>`:""}</div><div class="calendarChips">${chips}${extra}</div>${plan?`<span class="calendarTotal">${plan.total} lecture${plan.total===1?"":"s"}</span>`:""}${saved?'<span class="calendarSaved">✓ Saved</span>':""}`;
+    cell.addEventListener("click",()=>{calendarSelectedDate=date;renderCalendar();renderCalendarSelected()});
+    grid.appendChild(cell);
+  }
+  renderCalendarSelected();
+}
+
+function renderProgress(){
+  const p=activeProfile();if(!p)return;const entries=Object.entries(p.history||{}).sort(([a],[b])=>a.localeCompare(b));let actual=0,backlog=0;
+  entries.forEach(([,r])=>{actual+=Number(r.actual||0);backlog+=Number(r.backlog||0)});
+  const total=p.subjects.reduce((a,s)=>a+Number(s.total||0),0),completed=p.subjects.reduce((a,s)=>a+currentCompleted(p,s.id),0);
+  $("progressDays").textContent=entries.length;$("progressActual").textContent=actual;$("progressBacklog").textContent=backlog;$("progressPct").textContent=(total?Math.round(completed/total*100):0)+"%";$("progressStatus").textContent=feasibility(p).feasible?"On track":"Needs adjustment";
+  $("historyBody").innerHTML=entries.length?entries.map(([date,r])=>`<tr><td>${fmt(date)}</td><td>${r.planned}</td><td>${r.actual}</td><td>${r.backlog}</td><td>${esc(Object.entries(r.mix||{}).filter(([,n])=>n>0).map(([id,n])=>`${p.subjects.find(s=>s.id===id)?.name||"Subject"} ×${n}`).join(" + "))}</td></tr>`).join(""):'<tr><td colspan="5">No saved days yet.</td></tr>';
+}
+function exportCsv(){
+  const p=activeProfile();if(!p)return;const rows=[["Date","Day","Type","Subject Mix","Total","Status"]];generateSchedule(p).plans.forEach(r=>rows.push([r.date,dayNames[parseDate(r.date).getUTCDay()],r.level,mixText(r.rows),r.total,r.saved?"Saved":"Planned"]));const csv=rows.map(r=>r.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");download(`${p.name.replace(/\W+/g,"_")||"CA"}_Lecture_Planner.csv`,csv,"text/csv");
+}
+function download(name,text,type){const blob=new Blob([text],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function renderAll(){refreshProfileUI();applyAppearance();if(activeProfile()){renderDashboard();renderToday();renderPlanner();renderCalendar();renderFeasibility();renderProgress()}renderWizard()}
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{if(b.disabled)return;showPage(b.dataset.page)}));
+document.querySelectorAll(".jump").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
+$("profileSelect").addEventListener("change",()=>{
+  const id=$("profileSelect").value;
+  if(!db.profiles.some(p=>p.id===id)){refreshProfileUI();notify("That profile could not be loaded.");return}
+  db.activeProfileId=id;calendarCursor=monthKeyFromDate(activeProfile()?.planStart||"2026-10-06");calendarSelectedDate=null;saveDB();syncWizardFromProfile(activeProfile());renderAll();showPage("dashboard");notify(`Active profile: ${activeProfile().name}`);
+});
+$("newProfile").addEventListener("click",()=>{wizard=blankProfile();wizard.name="";wizardStep=1;renderWizard();showPage("setup");notify("New profile draft opened. Your current student is still active until you save.")});
+$("editProfile").addEventListener("click",()=>{const p=activeProfile();if(!p)return;syncWizardFromProfile(p);showPage("setup");notify(`Editing ${p.name}. Changes apply after Generate My Planner.`)});
+$("blankSetup").addEventListener("click",()=>{const keep={name:$("wName").value,start:$("wStart").value,target:$("wTarget").value};wizard=blankProfile();wizard.name=keep.name;wizard.planStart=keep.start||wizard.planStart;wizard.finalDate=keep.target||wizard.finalDate;renderWizard()});
+$("loadCATemplate").addEventListener("click",()=>{const keep={name:$("wName").value,start:$("wStart").value,target:$("wTarget").value};wizard=caTemplate();wizard.name=keep.name;wizard.planStart=keep.start||wizard.planStart;wizard.finalDate=keep.target||wizard.finalDate;renderWizard();notify("CA Final template loaded.")});
+$("loadRishabhPlan").addEventListener("click",()=>{wizard=rishabhPlan();wizardStep=5;renderWizard();notify("Your current plan is loaded as a draft. Press Generate My Planner to save and activate it.")});
+$("addWizardSubject").addEventListener("click",()=>{wizard.subjects.push(blankSubject("New Subject"));renderWizard()});
+document.querySelectorAll(".wizardStep").forEach(b=>b.addEventListener("click",()=>{captureWizardBasics();wizardStep=Number(b.dataset.step);renderWizard()}));
+$("wizardBack").addEventListener("click",()=>{captureWizardBasics();wizardStep=Math.max(1,wizardStep-1);renderWizard()});
+$("wizardNext").addEventListener("click",()=>{captureWizardBasics();wizardStep=Math.min(5,wizardStep+1);renderWizard()});
+["wName","wStart","wTarget","wMaxDaily","wEasy","wNormal","wHard","wMaxSubjects","wMix"].forEach(id=>$(id).addEventListener("change",()=>{captureWizardBasics();renderWizardReview()}));
+document.querySelectorAll('input[name="wMode"]').forEach(r=>r.addEventListener("change",()=>{wizard.mode=r.value;renderWizardReview()}));
+$("generatePlanner").addEventListener("click",()=>{
+  captureWizardBasics();const errs=validateWizard();if(errs.length){$("wizardValidation").className="notice warn";$("wizardValidation").innerHTML=errs.map(x=>"• "+esc(x)).join("<br>");notify("Fix the setup items before generating.");return}
+  const existing=db.profiles.findIndex(p=>p.id===wizard.id),copy=JSON.parse(JSON.stringify(wizard));
+  if(existing>=0)db.profiles[existing]=copy;else db.profiles.push(copy);db.activeProfileId=copy.id;saveDB();renderAll();showPage("dashboard");notify("Planner generated and saved.");
+});
+$("todayDate").addEventListener("change",renderToday);
+$("addManualSubject").addEventListener("click",()=>{const p=activeProfile();if(!p)return;const id=$("manualSubjectSelect").value;if(!id)return;if(document.querySelector(`[data-today-id="${id}"]`)){notify("That subject is already in today’s list.");return}const sub=p.subjects.find(x=>x.id===id),row=document.createElement("div");row.className="todayLine";row.innerHTML=`<div><strong>${esc(sub.name)}</strong><small>0 planned • manually added</small></div><div style="display:flex;gap:6px"><input type="number" min="0" max="${p.maxDaily}" data-today-id="${id}" value="1"><button class="btn small danger" type="button" data-remove-today="${id}">×</button></div>`;const empty=$("todayLines").querySelector(".empty");if(empty)empty.remove();$("todayLines").appendChild(row);row.querySelector("[data-remove-today]").addEventListener("click",()=>row.remove());notify(`${sub.name} added to today.`)});
+$("fillPlanned").addEventListener("click",()=>{document.querySelectorAll("[data-today-id]").forEach(inp=>{const p=activeProfile(),sim=generateSchedule(p),row=sim.plans.find(r=>r.date===$("todayDate").value)?.rows.find(x=>x.s.id===inp.dataset.todayId);inp.value=row?.planned||0});notify("Planned numbers filled.")});
+$("saveDay").addEventListener("click",()=>{
+  const p=activeProfile();if(!p)return;const date=$("todayDate").value,baseSim=generateSchedule(p),plan=baseSim.plans.find(r=>r.date===date);if(!plan){notify("No plan for this date.");return}
+  const previous=p.history?.[date],mix={};let actual=0;document.querySelectorAll("[data-today-id]").forEach(inp=>{const n=clamp(inp.value,0,p.maxDaily);mix[inp.dataset.todayId]=n;actual+=n});if(actual>p.maxDaily){notify(`Today's total is ${actual}. Your maximum is ${p.maxDaily}.`);return}
+  const plannedTotal=previous?.planned??(plan.saved?plan.plannedOriginal:plan.total),plannedMix=previous?.plannedMix??Object.fromEntries(plan.rows.map(r=>[r.s.id,r.planned]));p.history[date]={planned:plannedTotal,plannedMix,actual,backlog:Math.max(0,plannedTotal-actual),mix,savedAt:new Date().toISOString()};saveDB();renderAll();notify("Manual progress saved; future plan recalculated.");
+});
+$("planSearch").addEventListener("input",renderPlanner);$("planFilter").addEventListener("change",renderPlanner);
+$("calendarPrev").addEventListener("click",()=>{const p=activeProfile();if(!p)return;if(!calendarCursor)calendarCursor=monthKeyFromDate(p.planStart);calendarCursor=shiftMonth(calendarCursor,-1);renderCalendar()});
+$("calendarNext").addEventListener("click",()=>{const p=activeProfile();if(!p)return;if(!calendarCursor)calendarCursor=monthKeyFromDate(p.planStart);calendarCursor=shiftMonth(calendarCursor,1);renderCalendar()});
+$("calendarToday").addEventListener("click",()=>{const p=activeProfile();if(!p)return;calendarCursor=monthKeyFromDate(p.planStart);calendarSelectedDate=p.planStart;renderCalendar()});
+$("calendarOpenDay").addEventListener("click",()=>{const p=activeProfile();if(!p||!calendarSelectedDate)return;$("todayDate").value=calendarSelectedDate;renderToday();showPage("today")});
+$("exportPlanCsv").addEventListener("click",()=>{exportCsv();notify("Planner CSV export started.")});
+document.querySelectorAll('input[name="feasChoice"]').forEach(r=>r.addEventListener("change",renderFeasibility));
+$("applyFeasibility").addEventListener("click",()=>{
+  const p=activeProfile();if(!p)return;const choice=document.querySelector('input[name="feasChoice"]:checked')?.value;
+  if(choice==="rescue"){const r=JSON.parse($("applyFeasibility").dataset.rescue||"{}");if(!Object.keys(r).length){notify("No automatic rescue found.");return}Object.assign(p,r);saveDB();renderAll();showPage("planner");notify("Rescue workload applied.");return}
+  if(choice==="date"){const alt=$("applyFeasibility").dataset.alt;if(!alt){notify("No alternative date available.");return}p.finalDate=alt;saveDB();renderAll();showPage("planner");notify("Alternative target applied.");return}
+  if(choice==="compromise"){const alt=$("applyFeasibility").dataset.alt;if(alt&&parseDate(alt)>parseDate(p.finalDate))p.finalDate=addDays(p.finalDate,Math.max(1,Math.floor(dateDiff(p.finalDate,alt)/2)));p.normal=Math.min(p.maxDaily,p.normal+1);p.hard=Math.min(p.maxDaily,p.hard+1);saveDB();renderAll();showPage("planner");notify("Balanced compromise applied.");return}
+  syncWizardFromProfile(p);showPage("setup");notify("Edit the rules, then regenerate.");
+});
+document.querySelectorAll(".themeBtn").forEach(b=>b.addEventListener("click",()=>{prefs.theme=b.dataset.theme;savePrefs();applyAppearance();notify(`${b.textContent.trim()} applied.`)}));
+document.querySelectorAll(".colorDot").forEach(b=>b.addEventListener("click",()=>{prefs.accent=b.dataset.accent;savePrefs();applyAppearance();notify("Accent changed.")}));
+$("customAccent").addEventListener("input",e=>{prefs.accent=e.target.value;savePrefs();applyAppearance()});
+$("exportAllData").addEventListener("click",()=>{download("Universal_CA_Lecture_Planner_Backup.json",JSON.stringify({db,prefs},null,2),"application/json");notify("Backup export started.")});
+$("restoreAllData").addEventListener("click",()=>{const f=$("restoreFile").files[0];if(!f){notify("Choose a backup JSON file first.");return}const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result);if(!data.db||!Array.isArray(data.db.profiles))throw new Error();db=data.db;prefs=Object.assign(prefs,data.prefs||{});saveDB();savePrefs();renderAll();notify("Backup restored.")}catch(e){notify("Invalid backup file.")}};r.readAsText(f)});
+$("deleteProfile").addEventListener("click",()=>{const p=activeProfile();if(!p)return;if(confirm(`Delete profile "${p.name}" from this browser?`)){db.profiles=db.profiles.filter(x=>x.id!==p.id);if(!db.profiles.length){const fresh=rishabhPlan();db.profiles=[fresh];db.activeProfileId=fresh.id}else db.activeProfileId=db.profiles[0].id;saveDB();syncWizardFromProfile(activeProfile());renderAll();showPage("dashboard");notify("Profile deleted. A valid active profile is loaded.")}});
+if(matchMedia)matchMedia("(prefers-color-scheme: light)").addEventListener?.("change",()=>{if(prefs.theme==="system")applyAppearance()});
+ensureActiveProfile();applyAppearance();refreshProfileUI();syncWizardFromProfile(activeProfile());renderAll();showPage("dashboard")
+})();
+</script>
+</body>
+</html>
